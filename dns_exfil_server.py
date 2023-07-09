@@ -13,10 +13,9 @@ HEADER = '!HBBHHHH'
 HEADER_SIZE = struct.calcsize(HEADER)
 
 # Normally the name match pattern would be the following line
-# DOMAIN_PATTERN = re.compile('^[A-Za-z0-9\-\.\_]+$')
-# We only care about domain requests for our test domain
-# 'RXhmaWwgaGVsbG8' is just URL64encoded 'Exfil Hello'
-DOMAIN_PATTERN = re.compile('^RXhmaWwgaGVsbG8.fake$')
+#DOMAIN_PATTERN = re.compile('^[A-Za-z0-9\-\.\_]+$')
+# We only care about domain request in our format
+DOMAIN_PATTERN = re.compile('^[A-Za-z0-9\-\_]+.fake$')
 
 class DNSHandler(socketserver.BaseRequestHandler):
 
@@ -70,7 +69,6 @@ class DNSHandler(socketserver.BaseRequestHandler):
     response.write(response_header)
 
     # Questions
-    aaaa = False
     for q in questions:
       # Name
       for part in q['name'].split('.'):
@@ -79,22 +77,18 @@ class DNSHandler(socketserver.BaseRequestHandler):
       response.write(b'\x00')
 
       # qtype, qclass
-      aaaa = (q['type'] == 28)
       response.write(struct.pack('!HH', q['type'], q['class']))
 
-    # The response is always a fake address
+    # Answer is always to decode and return the exfil based DNS name.
+    # Normally, an attacker might reply with server:port to send exfil data
+    answer = exfil_hello + ". Server reply: connect to 11.22.33.44:5678"
     response.write(b'\xc0\x0c') # Compressed name (pointer to question)
-    if aaaa:
-      response.write(struct.pack('!HH', 28, 1)) # type: AAAA, class: IN
-      response.write(struct.pack('!I', 0)) # TTL: 0
-      response.write(struct.pack('!H', 16)) # Record length
-      response.write(bytearray([20,1,100,99,98,97,96,10,10,10,0,0,11,22,33,44])) # Fake IP6
-    else:
-      response.write(struct.pack('!HH', 1, 1)) # type: A, class: IN
-      response.write(struct.pack('!I', 0)) # TTL: 0
-      response.write(struct.pack('!H', 4)) # Record length
-      response.write(bytearray([11,22,33,44])) # IP 11.22.33.44
-    
+    response.write(struct.pack('!HH', 16, 1)) # type: TXT, class: IN
+    response.write(struct.pack('!I', 0)) # TTL: 0
+    response.write(struct.pack('!H', len(answer) + 1)) # Record length
+    response.write(struct.pack('B', len(answer))) # TXT length
+    response.write(answer.encode('us-ascii')) # Text
+
     # Send response
     socket.sendto(response.getvalue(), self.client_address)
 
