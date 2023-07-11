@@ -11,11 +11,7 @@ import base64
 PORT = 53
 HEADER = '!HBBHHHH'
 HEADER_SIZE = struct.calcsize(HEADER)
-
-# Normally the name match pattern would be the following line
-#DOMAIN_PATTERN = re.compile('^[A-Za-z0-9\-\.\_]+$')
-# We only care about domain request in our format
-DOMAIN_PATTERN = re.compile('^[A-Za-z0-9\-\_]+.fake$')
+DOMAIN_PATTERN = re.compile('^[A-Za-z0-9\-\.\_]+$')
 
 class DNSHandler(socketserver.BaseRequestHandler):
 
