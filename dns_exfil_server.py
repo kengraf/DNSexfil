@@ -1,10 +1,8 @@
 #!/usr/bin/env python3
-import argparse
 import io
 import re
 import socketserver
 import struct
-import sys
 import base64
 
 
