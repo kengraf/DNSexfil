@@ -25,7 +25,7 @@ Student discussion
 - Would a DNS server discover the exfiltration?
 - Would a network firewall discover the exfiltration?
 - Would a DLP solution discover the exfiltration?
-- What happens to the exfilration if a UDP packet fails?
+- What happens to the exfiltration if a UDP packet fails?
 - Is adding encryption needed?
 - How would you add encryption?
 - Does the exfiltration care about losing UDP packets?
